@@ -17,10 +17,14 @@ while True:
         shopping_list[item] = 1
 
     else:
-        action = clean(input("What would you like to do? Add? Or remove? "))
+        action = clean(input("What would you like to do? Add? Remove? Or Finalize? "))
 
         if action == 'add':
             item = clean(input("What would you like to add? "))
+            if not item:
+                print("Invalid item.")
+                continue
+
             if item in shopping_list:
                 shopping_list[item] += 1
             else:
@@ -44,5 +48,5 @@ while True:
             print("invalid option.")
     
     for item, count in shopping_list.items():
-        print(f'{item} x{count}.')
+        print(f'\u2022 {item.title()} x{count}')
                     
