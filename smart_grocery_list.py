@@ -1,7 +1,6 @@
 shopping_list = {}
 
 yes_values = {'yes', 'y', 'yeah', 'yep'}
-no_values = {'no', 'n', 'nah', 'nope'}
 
 def clean(text):
     return text.strip().lower()
@@ -35,14 +34,15 @@ while True:
             print("item not found.")
 
     elif action == 'finalize':
-        confirm = clean(input("Finalize list? "))
-        if confirm in yes_values:
-            break
-
+        break
+        
     else:
         print("invalid option.")
     
     print("\n Current items:")
-    for item, count in shopping_list.items():
-        print(f'\u2022 {item.title()} x{count}')
+    if not shopping_list:
+        print("empty")
+    else:
+        for item, count in shopping_list.items():
+            print(f'\u2022 {item.title()} x{count}')
                     
