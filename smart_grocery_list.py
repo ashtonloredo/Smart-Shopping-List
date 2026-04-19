@@ -8,45 +8,41 @@ def clean(text):
 
 while True:
 
-    if not shopping_list:
-        response = clean(input("Would you like to add an item? "))
-        if response in no_values:
+    action = clean(input("What would you like to do? Add? Remove? Or Finalize? "))
+
+    if action == 'add':
+        item = clean(input("What would you like to add? "))
+        if not item:
+            print("Invalid item.")
+            continue
+
+        if item in shopping_list:
+            shopping_list[item] += 1
+        else:
+            shopping_list[item] = 1
+
+    elif action == 'remove':
+        item = clean(input("What would you like to remove? "))
+        if not item:
+            print("Invalid item.")
+            continue
+            
+        if item in shopping_list:
+            shopping_list[item] -= 1
+            if shopping_list[item] == 0:
+                shopping_list.pop(item)
+        else:
+            print("item not found.")
+
+    elif action == 'finalize':
+        confirm = clean(input("Finalize list? "))
+        if confirm in yes_values:
             break
 
-        item = clean(input("What would you like to add? "))
-        shopping_list[item] = 1
-
     else:
-        action = clean(input("What would you like to do? Add? Remove? Or Finalize? "))
-
-        if action == 'add':
-            item = clean(input("What would you like to add? "))
-            if not item:
-                print("Invalid item.")
-                continue
-
-            if item in shopping_list:
-                shopping_list[item] += 1
-            else:
-                shopping_list[item] = 1
-
-        elif action == 'remove':
-            item = clean(input("What would you like to remove? "))
-            if item in shopping_list:
-                shopping_list[item] -= 1
-                if shopping_list[item] == 0:
-                    shopping_list.pop(item)
-            else:
-                print("item not found.")
-
-        elif action == 'finalize':
-            confirm = clean(input("Finalize list? "))
-            if confirm in yes_values:
-                break
-
-        else:
-            print("invalid option.")
+        print("invalid option.")
     
+    print("\n Current items:")
     for item, count in shopping_list.items():
         print(f'\u2022 {item.title()} x{count}')
                     
