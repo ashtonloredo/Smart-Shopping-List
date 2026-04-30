@@ -1,12 +1,14 @@
+import json
+
 shopping_list = {}
+agreement_values = {"yes", "y", "yeah", "yep", "yup", "save"}
 
-agreement_values = {"yes", "y", "yeah", "yep", "yup"}
-
+#List functions
 def clean(text: str): #Done
     return text.lower().strip()
 
 def clean_input(text: str): #Done
-    text = text.lower().strip()#.replace(" ", "")
+    text = text.lower().strip()
 
     number = ""
     name = ""
@@ -21,8 +23,7 @@ def clean_input(text: str): #Done
         quantity = int(number)
     else:
         quantity = 1
-    item = name.replace('x', '').strip()
-
+    item = name.strip()
     
     return item, quantity
 
@@ -30,11 +31,14 @@ def add_item(item, quantity): #Done
     shopping_list[item] = shopping_list.get(item, 0) + quantity
 
 def remove_item(item, quantity): #Done
+    if item not in shopping_list:
+        return
     shopping_list[item] -= quantity
     if shopping_list[item] <= 0:
         shopping_list.pop(item)
+    
 
-def display_list():
+def display_list(): #Done
     print("\n Current items:")
     if not shopping_list:
         print("empty")
@@ -42,41 +46,68 @@ def display_list():
         for item, quantity in shopping_list.items():
             print(f'\u2022 {item.lower()} x{quantity}')
 
+def save_list():
+    with open("grocery_list.json", 'w') as f:
+        json.dump(shopping_list, f, indent=4, sort_keys=True)  
+
+def load_list():
+    global shopping_list
+    try:
+        with open("grocery_list.json", 'r') as f:
+            shopping_list = json.load(f)
+        print("List has been loaded.")
+
+    except FileNotFoundError:
+        print("No saved list found.")
+     
+#Grocery List Logic
 while True:
 
-    action = clean(input("What would you like to do? Add? Remove? Or Finalize? "))
+    action = clean(input("What would you like to do? Add? Remove? Load List? Or Finalize? "))
 
-    #add 
+    #Add 
     if action == 'add':
         item, quantity = clean_input(input("What would you like to add? "))
-        #In case input is blank or justa space
-
+        
+        #In case input is blank or just a space
         if not item:
             print("Invalid item.")
             continue
         
         add_item(item, quantity)
+        display_list()
 
-
+    #Remove 
     elif action == 'remove':
         item, quantity = clean_input(input("What would you like to remove? "))
         
+        #In case input is blank or just a space
         if not item:
             print("Invalid item.")
+            display_list()
             continue
-
-        elif item in shopping_list: 
-            remove_item(item, quantity)
 
         else:
             print("item not found.")
+            display_list()
+
+        remove_item(item, quantity)
+        display_list()
 
     elif action == 'finalize':
         response = input("Would you like to see your finalized list? ")
         if clean(response) in agreement_values:
             display_list()
+        save_list_question = input("Would you like to save your list? ")
+        if clean(save_list_question) in agreement_values:
+            save_list()
+            break
         else:
             break
+
+    elif action in ('load', 'load list'):
+        load_list()
+        display_list()
 
     else:
         print("invalid option.")
