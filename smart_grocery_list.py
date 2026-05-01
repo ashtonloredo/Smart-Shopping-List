@@ -8,7 +8,7 @@ def clean(text: str): #Done
     return text.lower().strip()
 
 def clean_input(text: str): #Done
-    text = text.lower().strip()
+    text = clean(text)
 
     number = ""
     name = ""
@@ -24,7 +24,7 @@ def clean_input(text: str): #Done
     else:
         quantity = 1
     item = name.strip()
-    
+
     return item, quantity
 
 def add_item(item, quantity): #Done
@@ -32,12 +32,12 @@ def add_item(item, quantity): #Done
 
 def remove_item(item, quantity): #Done
     if item not in shopping_list:
-        return
+        return False
     shopping_list[item] -= quantity
     if shopping_list[item] <= 0:
         shopping_list.pop(item)
+    return True
     
-
 def display_list(): #Done
     print("\n Current items:")
     if not shopping_list:
@@ -48,7 +48,8 @@ def display_list(): #Done
 
 def save_list():
     with open("grocery_list.json", 'w') as f:
-        json.dump(shopping_list, f, indent=4, sort_keys=True)  
+        json.dump(shopping_list, f, indent=4, sort_keys=True)
+        print("List has been saved.")
 
 def load_list():
     global shopping_list
@@ -70,7 +71,7 @@ while True:
         item, quantity = clean_input(input("What would you like to add? "))
         
         #In case input is blank or just a space
-        if not item:
+        if item is None:
             print("Invalid item.")
             continue
         
@@ -87,27 +88,23 @@ while True:
             display_list()
             continue
 
-        else:
-            print("item not found.")
-            display_list()
-
-        remove_item(item, quantity)
+        successful = remove_item(item, quantity)
+        if not successful:
+            print("Item not found.")
         display_list()
 
     elif action == 'finalize':
-        response = input("Would you like to see your finalized list? ")
-        if clean(response) in agreement_values:
-            display_list()
+        display_list()
+        
         save_list_question = input("Would you like to save your list? ")
         if clean(save_list_question) in agreement_values:
             save_list()
-            break
-        else:
-            break
-
+        
+        break
+        
     elif action in ('load', 'load list'):
         load_list()
         display_list()
 
     else:
-        print("invalid option.")
+        print("Invalid option.")
