@@ -1,7 +1,11 @@
 import json
+from datetime import datetime as dt
 
 shopping_list = {}
 agreement_values = {"yes", "y", "yeah", "yep", "yup", "save"}
+
+todays_date = dt.now()
+formatted_date = todays_date.strftime("%m/%d/%Y %H:%M")
 
 #List functions
 def clean(text: str): #Done
@@ -49,7 +53,7 @@ def display_list(): #Done
 def save_list():
     with open("grocery_list.json", 'w') as f:
         json.dump(shopping_list, f, indent=4, sort_keys=True)
-        print("List has been saved.")
+        print(f"\nList has been saved.\nLast saved: {formatted_date}") #Date includes year/month/day hour/minute
 
 def load_list():
     global shopping_list
