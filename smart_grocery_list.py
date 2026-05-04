@@ -1,6 +1,6 @@
-import json
+from shopping_list_functions import ShoppingList
+from save_date import formatted_date
 
-shopping_list = {}
 agreement_values = {"yes", "y", "yeah", "yep", "yup", "save"}
 
 #List functions
@@ -27,86 +27,72 @@ def clean_input(text: str): #Done
 
     return item, quantity
 
-def add_item(item, quantity): #Done
-    shopping_list[item] = shopping_list.get(item, 0) + quantity
+def display_list(sl):
+    print("\nCurrent items:")
 
-def remove_item(item, quantity): #Done
-    if item not in shopping_list:
-        return False
-    shopping_list[item] -= quantity
-    if shopping_list[item] <= 0:
-        shopping_list.pop(item)
-    return True
-    
-def display_list(): #Done
-    print("\n Current items:")
-    if not shopping_list:
+    items = sl.get_items()
+    if not items:
         print("empty")
+
     else:
-        for item, quantity in shopping_list.items():
-            print(f'\u2022 {item.lower()} x{quantity}')
+        for item, quantity in items.items():
+            print(f'\u2022 {item} x{quantity}')
 
-def save_list():
-    from save_date import formatted_date
+#Shopping List Logic
 
-    with open("grocery_list.json", 'w') as f:
-        json.dump(shopping_list, f, indent=4, sort_keys=True)
-        print(f"\nList has been saved.\nLast saved: {formatted_date()}") #Date includes year/month/day hour/minute
+print("\nInitializing new list.")
+sl = ShoppingList()
 
-def load_list():
-    global shopping_list
-    try:
-        with open("grocery_list.json", 'r') as f:
-            shopping_list = json.load(f)
-        print("List has been loaded.")
-
-    except FileNotFoundError:
-        print("No saved list found.")
-     
-#Grocery List Logic
 while True:
+    display_list(sl)
+    action = clean(input("""
+What would you like to do?
 
-    action = clean(input("What would you like to do? Add? Remove? Load List? Or Finalize? "))
+\u2022 Add
+\u2022 Remove
+\u2022 Load List
+\u2022 Finalize
+> """))
 
     #Add 
     if action == 'add':
         item, quantity = clean_input(input("What would you like to add? "))
-        
+
         #In case input is blank or just a space
-        if item is None:
-            print("Invalid item.")
+        if not item:
+            print("\nInvalid item.")
             continue
-        
-        add_item(item, quantity)
-        display_list()
+
+        sl.add_item(item, quantity)
 
     #Remove 
     elif action == 'remove':
         item, quantity = clean_input(input("What would you like to remove? "))
-        
+
         #In case input is blank or just a space
         if not item:
-            print("Invalid item.")
-            display_list()
+            print("\nInvalid item.")
             continue
 
-        successful = remove_item(item, quantity)
+        successful = sl.remove_item(item, quantity)
         if not successful:
-            print("Item not found.")
-        display_list()
+            print("\nItem not found.")
 
     elif action == 'finalize':
-        display_list()
-        
         save_list_question = input("Would you like to save your list? ")
         if clean(save_list_question) in agreement_values:
-            save_list()
-        
-        break
-        
-    elif action in ('load', 'load list'):
-        load_list()
-        display_list()
 
+            if not sl.save_list():
+                print("\nFile could not be saved")
+
+            else:
+                print(f"\nList has been saved.\nLast saved: {formatted_date()}") #Date includes year/month/day hour/minute
+        break
+
+    elif action in ('load', 'load list'):
+        if not sl.load_list():
+            print("\nNo saved list found.")
+        else:
+            print("\nList loaded.")
     else:
-        print("Invalid option.")
+        print("\nInvalid option.")
